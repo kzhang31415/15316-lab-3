@@ -9,7 +9,7 @@ Runs pca_serve1..5 (or a custom target list), captures secrets from successful
 authorizations, and writes pca_auth<n>.txt files.
 
 Options:
-  --serve-base PATH      Prefix for server binaries (default: ~/mfredrik/bin/pca_serve)
+  --serve-base PATH      Prefix for server binaries (default: ~mfredrik/bin/pca_serve)
                          Example: if PATH=/x/pca_serve, script runs /x/pca_serve1, /x/pca_serve2, ...
   --pca-template PATH    Template for .pca files, must include "{n}" (default: ./auth{n}.pca)
   --pcx-template PATH    Template for .pcx files, must include "{n}" (default: ./auth{n}.pcx)
@@ -32,12 +32,22 @@ replace_n() {
   printf '%s' "${template//\{n\}/$n}"
 }
 
+expand_user_path() {
+  local path="$1"
+  if [[ "$path" == "~"* ]]; then
+    # Expand ~ and ~user path prefixes.
+    eval "printf '%s' \"$path\""
+  else
+    printf '%s' "$path"
+  fi
+}
+
 if [[ "${1:-}" == "--help" ]]; then
   usage
   exit 0
 fi
 
-SERVE_BASE="$HOME/mfredrik/bin/pca_serve"
+SERVE_BASE="~mfredrik/bin/pca_serve"
 PCA_TEMPLATE="./auth{n}.pca"
 PCX_TEMPLATE="./auth{n}.pcx"
 TARGETS="1,2,3,4,5"
@@ -108,7 +118,8 @@ for n_raw in "${TARGET_LIST[@]}"; do
     continue
   fi
 
-  serve_bin="${SERVE_BASE}${n}"
+  serve_bin_template="${SERVE_BASE}${n}"
+  serve_bin="$(expand_user_path "$serve_bin_template")"
   pca_file="$(replace_n "$PCA_TEMPLATE" "$n")"
   pcx_file="$(replace_n "$PCX_TEMPLATE" "$n")"
   out_file="${OUT_DIR}/pca_auth${n}.txt"

@@ -34,12 +34,23 @@ replace_n() {
 
 expand_user_path() {
   local path="$1"
-  if [[ "$path" == "~"* ]]; then
-    # Expand ~ and ~user path prefixes.
-    eval "printf '%s' \"$path\""
-  else
-    printf '%s' "$path"
+  if [[ "$path" == "~/"* ]]; then
+    printf '%s' "${HOME}${path:1}"
+    return
   fi
+
+  if [[ "$path" =~ ^~([A-Za-z_][A-Za-z_0-9-]*)(/.*)?$ ]]; then
+    local user="${BASH_REMATCH[1]}"
+    local rest="${BASH_REMATCH[2]}"
+    local user_home
+    user_home="$(getent passwd "$user" | cut -d: -f6)"
+    if [[ -n "$user_home" ]]; then
+      printf '%s' "${user_home}${rest}"
+      return
+    fi
+  fi
+
+  printf '%s' "$path"
 }
 
 if [[ "${1:-}" == "--help" ]]; then
@@ -131,6 +142,10 @@ for n_raw in "${TARGET_LIST[@]}"; do
 
   if [[ ! -x "$serve_bin" ]]; then
     echo "  [ERROR] Server binary not executable: $serve_bin" >&2
+    if [[ "$serve_bin" == "$HOME/mfredrik/bin/"* ]]; then
+      echo "  [HINT] You likely used ~/mfredrik/... which expands inside your own home." >&2
+      echo "         Use ~mfredrik/bin/pca_serve (no slash after ~)." >&2
+    fi
     errors=$((errors + 1))
     continue
   fi

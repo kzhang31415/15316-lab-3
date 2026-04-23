@@ -1,10 +1,6 @@
 import sys
 from parse import parse_policy, parse_typing
 from verify import check_policy, verify, VerifyException
-from pca_logic import (
-    stringify_policy,
-    stringify_typing
-)
 
 class ServeExitState:
     SUCCESS = 0
@@ -28,13 +24,11 @@ def run(cmd: CmdLineArgs):
         with open(cmd.policy_file, 'r') as f:
             policy = f.read()
         user_policy = parse_policy(policy)
-        print(stringify_policy(user_policy))
         check_policy(user_policy)
 
         with open(cmd.proof_file, 'r') as f:
             proof = f.read()
         m, p = parse_typing(proof)
-        print(f"|-\n{stringify_typing(m, p)}\n")
         
         verify(user_policy, m, p)
 
@@ -43,11 +37,9 @@ def run(cmd: CmdLineArgs):
 
     except Exception as e:
         if isinstance(e, VerifyException):
-            print(str(e))
             print("failure")
             sys.exit(ServeExitState.FAILURE)
         else:
-            print(str(e))
             print("error")
             sys.exit(ServeExitState.ERROR)
         
@@ -56,8 +48,7 @@ def main():
     try:
         args = parse_cmd_line_args()
         run(args)
-    except Exception as e:
-        print(str(e))
+    except Exception:
         print("error")
         sys.exit(ServeExitState.ERROR)
 

@@ -131,7 +131,7 @@ class TypingTransformer(Transformer):
         return pca.Says(agent=items[0], formula=items[1])
 
     def forall(self, items):
-        return pca.Forall(variable=items[0], formula=items[1])
+        return pca.Forall(variable=pca.Variable(items[0]), formula=items[1])
 
     def atom(self, items):
         predicate = items[0]
@@ -161,8 +161,7 @@ def parse_policy(s: str) -> pca.Policy:
         ast = transformer.transform(tree)
         
         return ast if ast else []
-    except Exception as e:
-        print(f"Error parsing policy {s}: {e}")
+    except Exception:
         raise
 
 def parse_typing(s: str) -> Tuple[pca.Proof, pca.Form]:
@@ -172,6 +171,5 @@ def parse_typing(s: str) -> Tuple[pca.Proof, pca.Form]:
         transformer = TypingTransformer()
         ast = transformer.transform(tree)
         return ast
-    except Exception as e:
-        print(f"Error parsing typing {s}: {e}")
+    except Exception:
         raise

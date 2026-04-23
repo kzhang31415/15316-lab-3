@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+
+# Built binaries and handin artifacts
+pca_serve
+lab3.zip
+
+# Local test scratch files
+.tmp_*.pca
+.tmp_*.pcx

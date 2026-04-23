@@ -84,7 +84,7 @@ class PolicyTransformer(Transformer):
 
     def atom(self, items):
         predicate = items[0]
-        terms = items[1] if len(items) > 1 else []
+        terms = items[1] if len(items) > 1 and items[1] is not None else []
         return pca.Atom(predicate=pca.Constant(predicate), terms=terms)
 
     def terms(self, items):
@@ -135,7 +135,7 @@ class TypingTransformer(Transformer):
 
     def atom(self, items):
         predicate = items[0]
-        terms = items[1] if len(items) > 1 else []
+        terms = items[1] if len(items) > 1 and items[1] is not None else []
         return pca.Atom(predicate=pca.Constant(predicate), terms=terms)
 
     def terms(self, items):
